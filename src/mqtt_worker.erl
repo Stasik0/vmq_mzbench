@@ -156,9 +156,6 @@ on_unsubscribe(_Topics, State) ->
 on_publish(Topic, Payload, #mqtt{action=Action} = State) ->
     mzb_metrics:notify({"mqtt.message.consumed.total", counter}, 1),
     {_Timestamp, OrigPayload} = binary_to_term(Payload),
-    error_logger:warning_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
-    error_logger:error_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
-    lager:error("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
     lager:info("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
     case Action of
         {forward, TopicPrefix, Qos} ->
