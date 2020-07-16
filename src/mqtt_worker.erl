@@ -57,7 +57,6 @@ initial_state() ->   % init the MZbench worker
     #state{}.
 
 init(State) ->  % init gen_mqtt
-    [lager:set_loghwm(H, 1000000) || H <- gen_event:which_handlers(lager_console_backend)], %raise logging throttling limit
     {A,B,C} = os:timestamp(),
     random:seed(A,B,C),
     {ok, State}.
@@ -157,6 +156,7 @@ on_unsubscribe(_Topics, State) ->
 on_publish(Topic, Payload, #mqtt{action=Action} = State) ->
     mzb_metrics:notify({"mqtt.message.consumed.total", counter}, 1),
     {_Timestamp, OrigPayload} = binary_to_term(Payload),
+    [lager:set_loghwm(H, 1000000) || H <- gen_event:which_handlers(lager_event)], %raise logging throttling limit
     error_logger:info_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
     case Action of
         {forward, TopicPrefix, Qos} ->
