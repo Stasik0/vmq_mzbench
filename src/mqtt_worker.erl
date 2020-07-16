@@ -57,7 +57,7 @@ initial_state() ->   % init the MZbench worker
     #state{}.
 
 init(State) ->  % init gen_mqtt
-    lager:set_loghwm(H, 250) %raise logging throttling limit
+    lager:set_loghwm(H, 250), %raise logging throttling limit
     {A,B,C} = os:timestamp(),
     random:seed(A,B,C),
     {ok, State}.
