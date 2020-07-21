@@ -58,7 +58,7 @@ initial_state() ->   % init the MZbench worker
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
     file:delete(Filename),
     %create empty file instead
-    file:write_file(Filename, []).
+    file:write_file(Filename, []),
     #state{}.
 
 init(State) ->  % init gen_mqtt
