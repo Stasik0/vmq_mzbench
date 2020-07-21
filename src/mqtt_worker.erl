@@ -54,6 +54,11 @@
 -behaviour(gen_emqtt).
 
 initial_state() ->   % init the MZbench worker
+    %delete write file if exists
+    Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    file:delete(Filename),
+    %create empty file instead
+    file:write_file(Filename, []).
     #state{}.
 
 init(State) ->  % init gen_mqtt
@@ -158,6 +163,8 @@ on_publish(Topic, Payload, #mqtt{action=Action} = State) ->
     {_Timestamp, OrigPayload} = binary_to_term(Payload),
     [lager:set_loghwm(H, 1000000) || H <- gen_event:which_handlers(lager_event)], %raise logging throttling limit
     error_logger:info_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
+    Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    file:write_file(Filename, io_lib:format("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]), [append]),
     case Action of
         {forward, TopicPrefix, Qos} ->
             {_Timestamp, OrigPayload} = binary_to_term(Payload),
