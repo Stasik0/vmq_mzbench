@@ -161,8 +161,8 @@ on_unsubscribe(_Topics, State) ->
 on_publish(Topic, Payload, #mqtt{action=Action} = State) ->
     mzb_metrics:notify({"mqtt.message.consumed.total", counter}, 1),
     {_Timestamp, OrigPayload} = binary_to_term(Payload),
-    [lager:set_loghwm(H, 1000000) || H <- gen_event:which_handlers(lager_event)], %raise logging throttling limit
-    error_logger:info_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
+    %[lager:set_loghwm(H, 1000000) || H <- gen_event:which_handlers(lager_event)], %raise logging throttling limit
+    %error_logger:info_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
     file:write_file(Filename, io_lib:format("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]), [append]),
     case Action of
@@ -194,6 +194,7 @@ handle_info(_Req, State) ->
 
 terminate(_Reason, _State) ->
     mzb_metrics:notify({"mqtt.connection.current_total", counter}, -1),
+    error_logger:info_msg("Terminating"),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
