@@ -1,7 +1,7 @@
 -module(mqtt_worker).
 
 % MZBench interface
--export([initial_state/0, metrics/0, post_hook/1]).
+-export([initial_state/0, metrics/0, terminate_state/2]).
 
 % MZBench statement commands
 -export([
@@ -61,12 +61,12 @@ initial_state() ->   % init the MZbench worker
     file:write_file(Filename, []),
     #state{}.
 
-post_hook(Env) -> % called from post_hook
+terminate_state(Res, State) -> 
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
     {ok, File} = file:read_file(Filename),
     Content = unicode:characters_to_list(File),
     error_logger:info_msg("~p", [Content]),
-    {ok, [{"finalized", "true"} | Env]}.
+    ok.
 
 init(State) ->  % init gen_mqtt
     {A,B,C} = os:timestamp(),
