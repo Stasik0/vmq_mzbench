@@ -1,7 +1,7 @@
 -module(mqtt_worker).
 
 % MZBench interface
--export([initial_state/0, metrics/0, terminate_state/2]).
+-export([initial_state/0, metrics/0]).
 
 % MZBench statement commands
 -export([
@@ -54,25 +54,17 @@
 -behaviour(gen_emqtt).
 
 initial_state() ->   % init the MZbench worker
+    #state{}.
+
+init(State) ->  % init gen_mqtt
+    {A,B,C} = os:timestamp(),
+    random:seed(A,B,C),
     %delete write file if exists
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
     error_logger:info_msg("Init: filename: ~p", [Filename]),
     file:delete(Filename),
     %create empty file instead
-    file:write_file(Filename, []),
-    #state{}.
-
-terminate_state(Res, State) -> 
-    Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
-    {ok, File} = file:read_file(Filename),
-    Content = unicode:characters_to_list(File),
-    error_logger:info_msg("Terminate: filename: ~p", [Filename]),
-    error_logger:info_msg("~p", [Content]),
-    ok.
-
-init(State) ->  % init gen_mqtt
-    {A,B,C} = os:timestamp(),
-    random:seed(A,B,C),
+    file:write_file(Filename, []),    
     {ok, State}.
 
 metrics() ->
@@ -173,7 +165,6 @@ on_publish(Topic, Payload, #mqtt{action=Action} = State) ->
     %[lager:set_loghwm(H, 1000000) || H <- gen_event:which_handlers(lager_event)], %raise logging throttling limit
     %error_logger:info_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
-    error_logger:info_msg("Append: filename: ~p", [Filename]),
     file:write_file(Filename, io_lib:format("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]), [append]),
     case Action of
         {forward, TopicPrefix, Qos} ->
@@ -204,7 +195,6 @@ handle_info(_Req, State) ->
 
 terminate(_Reason, _State) ->
     mzb_metrics:notify({"mqtt.connection.current_total", counter}, -1),
-    error_logger:info_msg("Terminating"),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
