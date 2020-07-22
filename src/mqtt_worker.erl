@@ -194,6 +194,7 @@ handle_info(_Req, State) ->
     {noreply, State}.
 
 terminate(_Reason, _State) ->
+    error_logger:info_msg("Terminate (not working for all workers)"),
     mzb_metrics:notify({"mqtt.connection.current_total", counter}, -1),
     ok.
 
