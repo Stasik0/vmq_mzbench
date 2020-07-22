@@ -65,6 +65,7 @@ terminate_state(Res, State) ->
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
     {ok, File} = file:read_file(Filename),
     Content = unicode:characters_to_list(File),
+    error_logger:info_msg("Fliename: ~p", [Filename]),
     error_logger:info_msg("~p", [Content]),
     ok.
 
