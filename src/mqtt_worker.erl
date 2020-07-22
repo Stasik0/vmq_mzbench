@@ -56,6 +56,7 @@
 initial_state() ->   % init the MZbench worker
     %delete write file if exists
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    error_logger:info_msg("Init: filename: ~p", [Filename]),
     file:delete(Filename),
     %create empty file instead
     file:write_file(Filename, []),
@@ -65,7 +66,7 @@ terminate_state(Res, State) ->
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
     {ok, File} = file:read_file(Filename),
     Content = unicode:characters_to_list(File),
-    error_logger:info_msg("Fliename: ~p", [Filename]),
+    error_logger:info_msg("Terminate: filename: ~p", [Filename]),
     error_logger:info_msg("~p", [Content]),
     ok.
 
@@ -172,6 +173,7 @@ on_publish(Topic, Payload, #mqtt{action=Action} = State) ->
     %[lager:set_loghwm(H, 1000000) || H <- gen_event:which_handlers(lager_event)], %raise logging throttling limit
     %error_logger:info_msg("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]),
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    error_logger:info_msg("Append: filename: ~p", [Filename]),
     file:write_file(Filename, io_lib:format("Message '~p' received on topic '~p'~n", [OrigPayload, Topic]), [append]),
     case Action of
         {forward, TopicPrefix, Qos} ->
