@@ -136,6 +136,7 @@ metrics() ->
 %% ------------------------------------------------
 on_connect(State) ->
     mzb_metrics:notify({"mqtt.connection.current_total", counter}, 1),
+    error_logger:info_msg("Connect"),
     {ok, State}.
 
 on_connect_error(_Reason, State) ->
@@ -144,6 +145,7 @@ on_connect_error(_Reason, State) ->
 
 on_disconnect(State) ->
     mzb_metrics:notify({"mqtt.connection.current_total", counter}, -1),
+    error_logger:info_msg("Disconnect"),
     {ok, State}.
 
 on_subscribe(Topics, State) ->
