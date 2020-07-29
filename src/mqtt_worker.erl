@@ -197,6 +197,7 @@ handle_info(_Req, State) ->
 
 terminate(_Reason, _State) ->
     Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    {Mega, Sec, Micro} = os:timestamp(),
     Ts = (Mega*1000000 + Sec)*1000 + round(Micro/1000),
     NewFilename = filename:join(["/tmp", io_lib:format("~p~p.txt",[self(),Ts])]),
     error_logger:info_msg("Terminate: moving file ~p to ~p", [Filename, NewFilename]),
