@@ -196,7 +196,13 @@ handle_info(_Req, State) ->
     {noreply, State}.
 
 terminate(_Reason, _State) ->
-    error_logger:info_msg("Terminate (not working for all workers)"),
+    Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    error_logger:info_msg("Terminate: dumping out ~p ----BEGIN----", [Filename]),
+    {ok, File} = file:read_file(Filename),
+    Content = unicode:characters_to_list(File),
+    error_logger:info_msg("~p",[Content]),
+    file:delete(Filename),
+    error_logger:info_msg("Terminate: dumping out ~p ----END----"),
     mzb_metrics:notify({"mqtt.connection.current_total", counter}, -1),
     ok.
 
