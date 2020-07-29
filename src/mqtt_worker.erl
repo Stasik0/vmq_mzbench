@@ -354,6 +354,8 @@ stats({publish_in, MsgId, Payload, QoS}, State) ->
         1 -> mzb_metrics:notify({"mqtt.message.pub_to_sub.latency.qos1", histogram}, Diff);
         2 -> mzb_metrics:notify({"mqtt.message.pub_to_sub.latency.qos2", histogram}, Diff)
     end,
+    Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    file:write_file(Filename, io_lib:format("MsgId '~p' publish_in", [MsgId]), [append]),
     maps:put({incoming, MsgId}, T2, State);
 stats({puback_in, MsgId}, State) ->
     T1 = maps:get({outgoing, MsgId}, State),
@@ -361,6 +363,8 @@ stats({puback_in, MsgId}, State) ->
     mzb_metrics:notify({"mqtt.publisher.qos1.puback.latency", histogram}, positive(timer:now_diff(T2, T1))),
     mzb_metrics:notify({"mqtt.publisher.qos1.puback.in.total", counter}, 1),
     mzb_metrics:notify({"mqtt.publisher.qos1.puback.waiting", counter}, -1),
+    Filename = filename:join(["/tmp", io_lib:format("~p.txt",[self()])]),
+    file:write_file(Filename, io_lib:format("MsgId '~p' puback_in", [MsgId]), [append]),
     NewState = maps:remove({outgoing, MsgId}, State),
     NewState;
 stats({puback_out, MsgId}, State) ->
